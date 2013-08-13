@@ -19,7 +19,7 @@ app.use(express.logger('dev'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
-app.use(express.cookieParser());
+app.use(express.cookieParser(config.cookieSecret));
 app.use(express.session({
 	key: config.db
   , cookie: {maxAge: 1000 * 60 * 60 * 24 * 30}//30 days

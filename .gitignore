@@ -213,3 +213,17 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#############
+## sublime-text2
+#############
+
+*.sublime-project
+*.sublime-workspace
+*.lnk
+
+#############
+## node_modules
+#############
+
+node_modules/

@@ -1,0 +1,16 @@
+{
+  "name": "myblog",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "3.2.6",
+    "ejs": "*",
+    "mongolian": "*",
+    "connect-mongolian": "*",
+    "connect-flash": "*",
+    "markdown": "*"
+  }
+}

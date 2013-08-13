@@ -1,9 +1,13 @@
-<%- include header %>
-<form method="post">
-  用户名：  <input type="text" name="name"/><br />
-  密码：    <input type="password" name="password"/><br />
-  确认密码：<input type="password" name="password-repeat"/><br />
-  邮箱：    <input type="email" name="email"/><br />
-           <input type="submit" value="注册"/>
+<%- include header_form %>
+<form class="form-signin" method="post">
+<h2 class="form-signin-heading">Please sign in</h2>
+<input type="text" name="name" class="input-block-level" placeholder="User name">
+<input type="password" name="password" class="input-block-level" placeholder="Password">
+<input type="password" name="password-repeat" class="input-block-level" placeholder="Password Again">
+<input type="email" name="email" class="input-block-level" placeholder="Email address">
+<!-- <label class="checkbox">
+  <input type="checkbox" value="remember-me"> Remember me
+</label> -->
+<button class="btn btn-large btn-primary" type="submit" value="Sign in">Sign in</button>
 </form>
 <%- include footer %>

@@ -1,23 +1,27 @@
 var crypto = require('crypto');
 var db = require('./models/db');
+var markdown = require('markdown').markdown;
 
 module.exports = function(app){
   app.get('/',function(req,res){
-    db.posts.find().sort({date: 1}).toArray(function (err, posts) {
-      if(err) posts = [];
+    db.posts.find().sort({date: 1}).toArray(function (err, docs) {
+      if(err) docs = [];
+      docs.forEach(function(post){
+        post.content = markdown.toHTML(post.content);
+      });
       res.render('index', { 
-        title: '主页'
+        title: 'home'
       , user: req.session.user
       , error: req.flash('error').toString()
       , success: req.flash('success').toString()
-      , posts: posts
-      });      
+      , posts: docs
+      });
     });
   });
 
   app.get('/reg', checkNotLogin, function(req,res){
     res.render('reg', {
-      title: '注册'
+      title: 'reg'
     , user: req.session.user
     , error: req.flash('error').toString()
     , success: req.flash('success').toString()
@@ -68,7 +72,7 @@ module.exports = function(app){
 
   app.get('/login', checkNotLogin, function(req,res){
     res.render('login', {
-      title: '登录'
+      title: 'login'
     , user: req.session.user
     , error: req.flash('error').toString()
     , success: req.flash('success').toString()
@@ -95,19 +99,19 @@ module.exports = function(app){
     });
   });
 
-  app.get('/post', checkLogin, function(req,res){
+  app.get('/post', checkLogin, checkAdmin, function(req,res){
     res.render('post', {
-      title: '发表' 
+      title: 'post' 
     , user: req.session.user
     , error: req.flash('error').toString()
     , success: req.flash('success').toString()
     });
   });
 
-  app.post('/post', checkLogin, function(req,res){
+  app.post('/post', checkLogin, checkAdmin, function(req,res){
     var currentUser = req.session.user;
     var post = {
-      name: currentUser,
+      owner: currentUser,
       title: req.body.title,
       content: req.body.post,
       date: new Date
@@ -127,6 +131,93 @@ module.exports = function(app){
     req.flash('success', 'See you!');
     res.redirect('/');
   });
+
+  app.get('/archive', function (req, res) {
+    db.posts.find().limit(20).sort({date: -1}).toArray(function (err, docs) {
+      if(err){
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      docs.forEach(function(post){
+        post.content = markdown.toHTML(post.content);
+      });
+      res.render('archive', {
+        title: 'Archive',
+        posts: docs,
+        user: req.session.user
+        , error: req.flash('error').toString()
+        , success: req.flash('success').toString()
+      });
+    });
+  });
+
+  app.get('/u/:name', function (req, res) {
+    db.users.findOne({name: req.params.name}, function (err, user) {
+      if(!user) {
+        req.flash('error', 'This user does not exist.');
+        return res.redirect('/');
+      }
+
+      // return all comments of this user.
+      db.comments.find({owner: user.name}).sort({date: 1}).toArray(function (err, docs) {
+        if(err) {
+          req.flash('error', err);
+          return res.redirect('/');
+        }
+        docs.forEach(function(c){
+          c.content = markdown.toHTML(c.content);
+        });
+        res.render('user', { 
+          title: user.name
+        , user: req.session.user
+        , error: req.flash('error').toString()
+        , success: req.flash('success').toString()
+        , posts: docs
+        });
+      });
+    });
+  });
+
+  app.get('/p/:id', function (req, res) {
+    db.posts.findOne({_id: db.objID(req.params.id)},function (err, post) {
+      if(err){
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      post.content = markdown.toHTML(post.content);
+      db.comments.find({post: req.params.id}).sort({date: 1}).toArray(function (err, comm) {
+        comm.forEach(function (c) {
+          c.content = markdown.toHTML(c.content);
+        });
+        res.render('article', { 
+            title: post.title
+          , user: req.session.user
+          , error: req.flash('error').toString()
+          , success: req.flash('success').toString()
+          , post: post
+          , comments: comm
+        });
+      });
+    });
+  });
+
+  app.post('/p/:id', function (req, res) {
+    var comment = {
+          post: req.params.id, 
+          owner: req.body.name,
+          title: req.body.title,
+          date: new Date,
+          content: req.body.content
+    }
+    db.comments.save(comment, function (err, val) {
+      if(err){
+        req.flash('error', err);
+        return res.redirect('/');
+      }
+      req.flash('success', 'Commented successfully.');
+      res.redirect('back');
+    });
+  });
 };
 
 function checkLogin (req, res, next) {
@@ -143,4 +234,12 @@ function checkNotLogin (req, res, next) {
     return res.redirect('/');
   }
   next(); 
+};
+
+function checkAdmin (req, res, next) {
+  if(req.session.user.name!="admin"){
+    req.flash('error', 'Only the owner of this site is allowed to do so.');
+    return res.redirect('/');
+  }
+  next();
 };

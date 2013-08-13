@@ -3,26 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <title>Blog</title>
-<link rel="stylesheet" href="stylesheets/style.css">
+<link rel="stylesheet" href="css/bootstrap.css">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
 </head>
 <body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="brand" href="#">Tateblog</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li <% if(locals.title=="home") {%> class="active" <% }%>><a href="/">Home</a></li>
+          <% if(locals.user) {%>
+          <li <% if(locals.title=="post") {%> class="active" <% }%>><a href="/post">Post</a></li>
+          <li><a href="/logout">Logout</a></li>
+          <% } else { %>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/reg">Register</a></li>
+          <% } %>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
 
-<header>
-<h1><%= title %></h1>
-</header>
-
-<nav>
-<span><a title="主页" href="/">home</a></span>
-<% if(locals.user) {%>
-<span><a title="发表" href="/post">login</a></span>
-<span><a title="登出" href="/logout">register</a></span>
-<% } else { %>
-<span><a title="登录" href="/login">login</a></span>
-<span><a title="注册" href="/reg">register</a></span>
-<% } %>
-</nav>
-
-<article>
+<div class="container">
+  <h1><%= title %></h1>
+<div class="article">
 <% if (locals.success) { %>
   <div ><%= locals.success %></div>
 <% } %>

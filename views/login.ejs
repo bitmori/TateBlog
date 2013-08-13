@@ -1,7 +1,11 @@
-<%- include header %>
-<form method="post">
-  用户名：<input type="text" name="name"/><br />
-  密码：  <input type="password" name="password"/><br />
-         <input type="submit" value="登录"/>
+<%- include header_form %>
+<form class="form-signin" method="post">
+<h2 class="form-signin-heading">Please sign in</h2>
+<input type="text" name="name" class="input-block-level" placeholder="User name">
+<input type="password" name="password" class="input-block-level" placeholder="Password">
+<label class="checkbox">
+  <input type="checkbox" value="remember-me"> Remember me
+</label>
+<button class="btn btn-large btn-primary" type="submit" value="Login">Login</button>
 </form>
 <%- include footer %>
